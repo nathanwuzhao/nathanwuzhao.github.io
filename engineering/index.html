@@ -16,7 +16,9 @@ header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap
 h1{font-size:20px;margin:0}
 nav{font-size:13px}
 h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:24px 0 6px}
-table{width:100%;border-collapse:collapse}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th:nth-child(1){width:112px}th:nth-child(3){width:80px}th:nth-child(4){width:130px}th:nth-child(5){width:200px}
+@media (max-width:560px){th:nth-child(1){width:88px}th:nth-child(4){width:120px}}
 td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
 th{font-size:12px;font-weight:600;color:var(--mute);background:var(--alt)}
 tbody tr:hover{background:var(--alt)}
@@ -36,14 +38,28 @@ td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;b
 
 <h2>Science Olympiad</h2>
 <table>
-<thead><tr><th></th><th>Build</th><th class="hide-s">Season</th><th>Result</th><th class="hide-s">Key parts</th></tr></thead>
+<thead><tr><th></th><th>Build</th><th class="hide-s">Year</th><th>Result</th><th class="hide-s">Disciplines</th></tr></thead>
 <tbody>
 <tr>
   <td><a href="robot-tour/"><img src="robot-tour/thumb.webp" width="96" height="60" alt="Robot Tour CAD render"></a></td>
   <td><a href="robot-tour/">Robot Tour</a><br><small>Closed-loop stepper robot, continuous-path motion</small></td>
-  <td class="n hide-s">2025–26</td>
-  <td class="r">State champion<br><small>0 cm distance error</small></td>
-  <td class="hide-s"><small>RP2040, NEMA 17, TMC2209, MT6701, BNO085</small></td>
+  <td class="n hide-s">2026</td>
+  <td class="r">State champion</td>
+  <td class="hide-s"><small>Firmware · Controls · CAD</small></td>
+</tr>
+</tbody>
+</table>
+
+<h2>Science fair</h2>
+<table>
+<thead><tr><th></th><th>Build</th><th class="hide-s">Year</th><th>Result</th><th class="hide-s">Disciplines</th></tr></thead>
+<tbody>
+<tr>
+  <td><a href="bimanual-manipulator/"><img src="bimanual-manipulator/thumb.webp" width="96" height="60" alt="Bimanual manipulator CAD render"></a></td>
+  <td><a href="bimanual-manipulator/">Bimanual Mobile Manipulator</a><br><small>Dual-arm assisted-living robot, independent lifts, vision-assisted grasp</small></td>
+  <td class="n hide-s">2025</td>
+  <td class="r">ISEF 4th (ROBO)</td>
+  <td class="hide-s"><small>Mechanical · Controls · Vision</small></td>
 </tr>
 </tbody>
 </table>

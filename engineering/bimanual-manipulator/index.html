@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bimanual Mobile Manipulator · Nathan Zhao</title>
+<meta name="description" content="Dual-arm mobile manipulator for assisted living: independent belt-driven lifts, telescoping arms, ESP32 + I²C subsystem controllers with PIDF, YOLOv5 grasp assist. ISEF 2025 4th Grand Award, Robotics & Intelligent Machines.">
+<style>
+:root{--fg:#1a1a1a;--mute:#666;--line:#d6d6d6;--bg:#fff;--alt:#f5f5f5;--link:#0b57a4;--acc:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+h1{font-size:20px;margin:0}
+.crumb{font-size:13px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:28px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p{margin:6px 0 10px;max-width:72ch}
+.top{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:16px;margin-top:14px}
+.top{align-items:start}
+.top>*{min-width:0}
+@media (max-width:640px){.top{grid-template-columns:1fr}}
+.cad{position:relative;aspect-ratio:4/5;background:#fff;border:1px solid var(--line)}
+.cad button{all:unset;cursor:pointer;display:block;width:100%;height:100%}
+.cad img{display:block;width:100%;height:100%;object-fit:contain}
+.cad span{position:absolute;left:8px;bottom:8px;background:#1a1a1a;color:#fff;font-size:12px;padding:4px 8px}
+.cad button:focus-visible span,.cad button:hover span{background:var(--acc)}
+model-viewer{width:100%;height:100%;--poster-color:#fff}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--mute);font-size:12px;background:var(--alt)}
+.spec td:first-child,.k td:first-child{color:var(--mute);white-space:nowrap;width:1%}
+.num td:nth-child(n+2){font-variant-numeric:tabular-nums;white-space:nowrap}
+.result{border-left:3px solid var(--acc);padding:2px 0 2px 10px}
+.eq{font:13px/1.9 ui-monospace,Consolas,monospace;background:var(--alt);padding:8px 12px;overflow-x:auto;white-space:nowrap}
+.dia{overflow-x:auto}
+svg{display:block;width:100%;min-width:560px;height:auto;max-width:700px}
+svg text{fill:currentColor;font:12px system-ui,sans-serif}
+svg .s{fill:var(--mute);font-size:11px}
+svg .b{fill:var(--alt);stroke:currentColor}
+svg .l{stroke:currentColor;fill:none}
+.cap{font-size:12px;color:var(--mute)}
+.wide{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Bimanual Mobile Manipulator</h1>
+  <span class="crumb"><a href="/engineering/">Builds</a> / ISEF / 2024–25</span>
+</header>
+
+<div class="top">
+  <div class="cad" id="cad">
+    <button type="button" id="load3d" aria-label="Load interactive 3D model">
+      <img src="poster.webp" width="800" height="1000" alt="CAD render of the dual-arm mobile manipulator: differential drive base, two vertical lift columns, and two telescoping arms">
+      <span>▶ Rotate in 3D · 3.1 MB</span>
+    </button>
+  </div>
+  <table class="spec">
+    <tr><td>Main MCU</td><td>ESP32 (Wi-Fi command link)</td></tr>
+    <tr><td>Subsystem MCUs</td><td>3× LGT8F328P (drive, lift, extension)</td></tr>
+    <tr><td>Bus</td><td>I²C, level-shifted</td></tr>
+    <tr><td>Motors</td><td>775-class brushed DC planetary gearmotors</td></tr>
+    <tr><td>Motor drivers</td><td>BTS7960</td></tr>
+    <tr><td>Servo driver</td><td>PCA9685 (shoulder, wrist)</td></tr>
+    <tr><td>Feedback</td><td>Quadrature encoders, laser ToF</td></tr>
+    <tr><td>Vision</td><td>YOLOv5 + OpenCV, off-board laptop</td></tr>
+    <tr><td>Power</td><td>3S2P LiPo, buck to 5 V</td></tr>
+    <tr><td>CAD</td><td>Onshape</td></tr>
+  </table>
+</div>
+
+<h2>Challenge</h2>
+<p>Caregiver shortages leave many older adults without help for everyday tasks like fetching objects. The goal was a low-cost mobile manipulator that can pick something up from a table or counter and bring it to the user. That means a base small enough for a home (under 350 × 350 mm) that can still reach over 800 mm high and 600 mm out. The arms need enough dexterity to grip everyday objects, and the robot has to be simple to teleoperate, with vision assisting the grasp.</p>
+<p class="result">4th Grand Award, Robotics &amp; Intelligent Machines, Regeneron ISEF 2025. Grand Winner, GKCSEF 2025.</p>
+
+<h2>System</h2>
+<div class="dia">
+<svg viewBox="0 0 700 300" role="img" aria-label="Block diagram. A laptop running YOLOv5, OpenCV, and the teleop interface receives the overhead camera feed and sends commands over Wi-Fi to an ESP32. The ESP32 talks over a level-shifted I²C bus to three LGT8F328P controllers (drive base, lift, extension) and a PCA9685 servo driver. Each LGT8F328P drives 775 gearmotors with encoders through BTS7960 drivers. The PCA9685 drives the shoulder and wrist servos. A 3S2P LiPo powers the motor drivers directly and feeds a buck converter for the 5 V logic rail.">
+  <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="currentColor"/></marker></defs>
+  <rect class="b" x="10" y="20" width="130" height="50"/><text x="75" y="41" text-anchor="middle">Laptop</text><text class="s" x="75" y="58" text-anchor="middle">vision · teleop UI</text>
+  <rect class="b" x="10" y="94" width="130" height="32"/><text x="75" y="114" text-anchor="middle">Overhead camera</text>
+  <path class="l" d="M75 94V72" marker-end="url(#a)"/>
+  <rect class="b" x="210" y="20" width="110" height="50"/><text x="265" y="49" text-anchor="middle">ESP32</text>
+  <path class="l" d="M140 45H208" marker-end="url(#a)"/><text class="s" x="174" y="39" text-anchor="middle">Wi-Fi</text>
+  <path class="l" d="M265 70V118M265 118H625" stroke-width="2"/>
+  <text x="275" y="110">I²C (level-shifted)</text>
+  <path class="l" d="M385 118V140M505 118V140M625 118V140M265 118V140"/>
+  <rect class="b" x="210" y="140" width="110" height="40"/><text x="265" y="157" text-anchor="middle">LGT8F328P</text><text class="s" x="265" y="172" text-anchor="middle">drive base</text>
+  <rect class="b" x="330" y="140" width="110" height="40"/><text x="385" y="157" text-anchor="middle">LGT8F328P</text><text class="s" x="385" y="172" text-anchor="middle">lift</text>
+  <rect class="b" x="450" y="140" width="110" height="40"/><text x="505" y="157" text-anchor="middle">LGT8F328P</text><text class="s" x="505" y="172" text-anchor="middle">extension</text>
+  <rect class="b" x="570" y="140" width="110" height="40"/><text x="625" y="164" text-anchor="middle">PCA9685</text>
+  <rect class="b" x="210" y="200" width="110" height="32"/><text x="265" y="220" text-anchor="middle">BTS7960</text>
+  <rect class="b" x="330" y="200" width="110" height="32"/><text x="385" y="220" text-anchor="middle">BTS7960</text>
+  <rect class="b" x="450" y="200" width="110" height="32"/><text x="505" y="220" text-anchor="middle">BTS7960</text>
+  <rect class="b" x="570" y="200" width="110" height="40"/><text x="625" y="217" text-anchor="middle">Servos</text><text class="s" x="625" y="232" text-anchor="middle">shoulder · wrist</text>
+  <rect class="b" x="210" y="252" width="110" height="40"/><text x="265" y="269" text-anchor="middle">775 gearmotors</text><text class="s" x="265" y="284" text-anchor="middle">+ quad. encoders</text>
+  <rect class="b" x="330" y="252" width="110" height="40"/><text x="385" y="269" text-anchor="middle">775 gearmotors</text><text class="s" x="385" y="284" text-anchor="middle">+ quad. encoders</text>
+  <rect class="b" x="450" y="252" width="110" height="40"/><text x="505" y="269" text-anchor="middle">775 gearmotors</text><text class="s" x="505" y="284" text-anchor="middle">+ quad. encoders</text>
+  <path class="l" d="M265 180V198" marker-end="url(#a)"/><path class="l" d="M385 180V198" marker-end="url(#a)"/><path class="l" d="M505 180V198" marker-end="url(#a)"/><path class="l" d="M625 180V198" marker-end="url(#a)"/>
+  <path class="l" d="M265 232V250" marker-end="url(#a)"/><path class="l" d="M385 232V250" marker-end="url(#a)"/><path class="l" d="M505 232V250" marker-end="url(#a)"/>
+  <rect class="b" x="10" y="176" width="130" height="40"/><text x="75" y="193" text-anchor="middle">3S2P LiPo</text><text class="s" x="75" y="208" text-anchor="middle">11.1 V nominal</text>
+  <rect class="b" x="10" y="244" width="130" height="40"/><text x="75" y="261" text-anchor="middle">Buck → 5 V</text><text class="s" x="75" y="276" text-anchor="middle">logic rail</text>
+  <path class="l" d="M75 216V242" marker-end="url(#a)"/>
+  <path class="l" d="M140 196H190V216H208" stroke-dasharray="4 3" marker-end="url(#a)"/>
+  <path class="l" d="M320 216H328M440 216H448" stroke-dasharray="2 2"/>
+  <text class="s" x="146" y="190">motor supply</text>
+</svg>
+</div>
+<p class="cap">Solid lines carry signals; dashed lines are battery power to the BTS7960s. The 5 V buck powers the microcontrollers and logic. Each LGT8F328P closes its own encoder loop locally, so only setpoints and telemetry cross the I²C bus.</p>
+
+<h2>Control</h2>
+<table class="k">
+  <tr><td>Laptop</td><td>Runs the teleop interface and the vision pipeline on the overhead camera stream. Sends joint and drive commands to the robot over Wi-Fi.</td></tr>
+  <tr><td>ESP32</td><td>Receives commands over Wi-Fi and dispatches setpoints over I²C to the subsystem controllers and the PCA9685.</td></tr>
+  <tr><td>LGT8F328P ×3</td><td>One per subsystem (drive base, lift, extension). Runs PIDF on quadrature encoder feedback, with trapezoidal motion profiles for smooth moves and a feedforward term that holds position under load.</td></tr>
+  <tr><td>PCA9685</td><td>Generates PWM for the shoulder and wrist servos.</td></tr>
+</table>
+<div class="eq">
+u(t) = K<sub>p</sub>·e(t) + K<sub>i</sub>·∫e(τ)dτ + K<sub>d</sub>·de/dt + F<br>
+d<sub>L</sub> = r·Δφ<sub>L</sub> &nbsp;&nbsp; d<sub>R</sub> = r·Δφ<sub>R</sub> &nbsp;&nbsp; d = (d<sub>L</sub> + d<sub>R</sub>)/2 &nbsp;&nbsp; Δθ = (d<sub>R</sub> − d<sub>L</sub>)/L
+</div>
+<p>The drive base navigates by dead reckoning from wheel encoders. For assisted grasping, the laptop runs camera frames through OpenCV and YOLOv5, tracks the detected object's center, and uses feedforward to align the servos with it. When the end effector's laser ToF reports the object in range, the gripper closes automatically.</p>
+
+<h2>Mechanisms</h2>
+<table class="k">
+  <tr><td>Drive base</td><td>Two-wheel differential drive</td></tr>
+  <tr><td>Lift (×2)</td><td>Independent per arm. Worm-gear, belt-driven vertical lift, with the arm carriage on a V-wheel Z-axis plate.</td></tr>
+  <tr><td>Shoulder</td><td>Servo pivot</td></tr>
+  <tr><td>Arm</td><td>Telescoping tube, extended by a worm-gear-driven winch</td></tr>
+  <tr><td>Wrist</td><td>2-DOF differential</td></tr>
+  <tr><td>End effector</td><td>Compliant-wheel mechanical gripper with a polycarbonate roller plate and a laser ToF distance sensor</td></tr>
+</table>
+
+<h2>Requirements vs. measured</h2>
+<div class="wide">
+<table class="num">
+  <thead><tr><th>Metric</th><th>Requirement</th><th>Measured</th></tr></thead>
+  <tr><td>Lift height</td><td>≥ 800 mm</td><td>&gt; 900 mm</td></tr>
+  <tr><td>Shoulder range of motion</td><td>&gt; 45°</td><td>60°</td></tr>
+  <tr><td>Gripper object diameter</td><td>&gt; Ø70 mm</td><td>&gt; Ø75 mm</td></tr>
+  <tr><td>Gripper payload</td><td>&gt; 200 g</td><td>&gt; 500 g</td></tr>
+  <tr><td>Battery life</td><td>5 tasks per charge</td><td>&gt; 1 h continuous (calculated)</td></tr>
+  <tr><td>Arm extension accuracy</td><td>—</td><td>within 4.5 mm</td></tr>
+  <tr><td>Navigation drift</td><td>—</td><td>&lt; 2% of distance traveled</td></tr>
+  <tr><td>Drive speed, with payload</td><td>—</td><td>&gt; 1.2 m/s</td></tr>
+</table>
+</div>
+<p><a href="/data/isef2025_poster.pdf">ISEF poster</a> (PDF) · <a href="https://isef.net/project/robo060-bimanual-robot-for-assisted-living">ISEF project page</a></p>
+</main>
+<script>
+document.getElementById('load3d').onclick=function(){
+  self.ModelViewerElement={meshoptDecoderLocation:'https://cdn.jsdelivr.net/npm/meshoptimizer@0.22.0/meshopt_decoder.js'};
+  var s=document.createElement('script');s.type='module';
+  s.src='https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js';
+  document.head.appendChild(s);
+  var m=document.createElement('model-viewer');
+  [['src','model.glb'],['poster','poster.webp'],['alt','Interactive 3D model of the bimanual mobile manipulator'],['camera-controls',''],['camera-orbit','-35deg 75deg 105%'],['field-of-view','24deg'],['environment-image','neutral'],['shadow-intensity','0.6'],['interaction-prompt','none'],['touch-action','pan-y']].forEach(function(a){m.setAttribute(a[0],a[1])});
+  document.getElementById('cad').replaceChildren(m);
+};
+</script>
+</body>
+</html>
