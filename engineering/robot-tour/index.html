@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Tour · Nathan Zhao</title>
+<meta name="description" content="Science Olympiad Robot Tour, 2025–26: RP2040 closed-loop stepper robot with PIO step generation, dual-core firmware, and continuous-path motion. State champion, 0 cm distance error.">
+<style>
+:root{--fg:#1a1a1a;--mute:#666;--line:#d6d6d6;--bg:#fff;--alt:#f5f5f5;--link:#0b57a4;--acc:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+h1{font-size:20px;margin:0}
+.crumb{font-size:13px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:28px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p{margin:6px 0 10px;max-width:72ch}
+.top{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-top:14px}
+.top>*{min-width:0}
+@media (max-width:720px){.top{grid-template-columns:1fr}}
+.cad{position:relative;aspect-ratio:16/10;background:#fff;border:1px solid var(--line)}
+.cad button{all:unset;cursor:pointer;display:block;width:100%;height:100%}
+.cad img{display:block;width:100%;height:100%;object-fit:contain}
+.cad span{position:absolute;left:8px;bottom:8px;background:#1a1a1a;color:#fff;font-size:12px;padding:4px 8px}
+.cad button:focus-visible span,.cad button:hover span{background:var(--acc)}
+model-viewer{width:100%;height:100%;--poster-color:#fff}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--mute);font-size:12px;background:var(--alt)}
+.spec td:first-child,.k td:first-child{color:var(--mute);white-space:nowrap;width:1%}
+.result{border-left:3px solid var(--acc);padding:2px 0 2px 10px}
+.eq{font:13px/1.9 ui-monospace,Consolas,monospace;background:var(--alt);padding:8px 12px;overflow-x:auto;white-space:nowrap}
+.dia{overflow-x:auto}
+svg{display:block;width:100%;min-width:560px;height:auto;max-width:700px}
+svg text{fill:currentColor;font:12px system-ui,sans-serif}
+svg .s{fill:var(--mute);font-size:11px}
+svg .b{fill:var(--alt);stroke:currentColor}
+svg .l{stroke:currentColor;fill:none}
+.cap{font-size:12px;color:var(--mute)}
+figure{margin:0}figcaption{font-size:12px;color:var(--mute)}
+.prev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:560px){.prev{grid-template-columns:1fr}}
+.prev img{width:100%;height:auto;max-width:240px;display:block;border:1px solid var(--line)}
+.prev ul{margin:6px 0;padding-left:18px}
+.wide{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Robot Tour</h1>
+  <span class="crumb"><a href="/engineering/">Builds</a> / Science Olympiad / 2025–26</span>
+</header>
+
+<div class="top">
+  <div class="cad" id="cad">
+    <button type="button" id="load3d" aria-label="Load interactive 3D model">
+      <img src="roto.webp" width="1200" height="750" alt="CAD render of the Robot Tour robot: stepper motors, wheels, and electronics deck on a printed chassis">
+      <span>▶ Rotate in 3D · 2.8 MB</span>
+    </button>
+  </div>
+  <table class="spec">
+    <tr><td>MCU</td><td>RP2040 Zero (2× Cortex-M0+, 133 MHz)</td></tr>
+    <tr><td>Firmware</td><td>C++, Pico SDK</td></tr>
+    <tr><td>Drive</td><td>2× NEMA 17 pancake stepper</td></tr>
+    <tr><td>Drivers</td><td>2× TMC2209, STEP/DIR via PIO</td></tr>
+    <tr><td>Encoders</td><td>2× MT6701 magnetic angle</td></tr>
+    <tr><td>IMU</td><td>BNO085</td></tr>
+    <tr><td>Sensor bus</td><td>I²C</td></tr>
+    <tr><td>Power</td><td>8× AA NiMH, buck to 3.3 V</td></tr>
+    <tr><td>CAD</td><td>Onshape</td></tr>
+  </table>
+</div>
+
+<h2>Challenge</h2>
+<p>The robot drives itself through a grid course: it passes through gate zones, pushes water bottles, and stops on a target point. It is scored on how close it stops to that point and how close its run time is to a target time. The hard part is the floor. My 2024 and 2025 robots stopped within about 5 mm at home but missed by 4–6 cm at competition. On dusty, uneven gym floors the wheels slip, and a robot that only counts wheel rotations can't tell.</p>
+<p class="result">Won the 2025–26 state championship with <b>0 cm</b> distance error.</p>
+
+<h2>System</h2>
+<div class="dia">
+<svg viewBox="0 0 700 250" role="img" aria-label="Block diagram. An 8×AA NiMH pack supplies motor voltage to two TMC2209 drivers and feeds a buck converter that makes the 3.3 V rail for the RP2040 Zero. The RP2040 generates STEP/DIR for both drivers using PIO. The drivers run the left and right NEMA 17 steppers. A BNO085 IMU and two MT6701 encoders connect to the RP2040 over I²C. Each MT6701 reads a magnet on its motor shaft.">
+  <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="currentColor"/></marker></defs>
+  <rect class="b" x="10" y="64" width="110" height="44"/><text x="65" y="82" text-anchor="middle">8× AA NiMH</text><text class="s" x="65" y="98" text-anchor="middle">9.6 V nominal</text>
+  <rect class="b" x="160" y="64" width="100" height="44"/><text x="210" y="82" text-anchor="middle">Buck</text><text class="s" x="210" y="98" text-anchor="middle">→ 3.3 V</text>
+  <rect class="b" x="300" y="44" width="140" height="84"/><text x="370" y="66" text-anchor="middle">RP2040 Zero</text><text class="s" x="370" y="84" text-anchor="middle">sensor core</text><text class="s" x="370" y="99" text-anchor="middle">motion core</text><text class="s" x="370" y="114" text-anchor="middle">PIO step gen</text>
+  <rect class="b" x="500" y="24" width="100" height="36"/><text x="550" y="46" text-anchor="middle">TMC2209 L</text>
+  <rect class="b" x="500" y="112" width="100" height="36"/><text x="550" y="134" text-anchor="middle">TMC2209 R</text>
+  <rect class="b" x="620" y="24" width="74" height="36"/><text x="657" y="46" text-anchor="middle">NEMA 17 L</text>
+  <rect class="b" x="620" y="112" width="74" height="36"/><text x="657" y="134" text-anchor="middle">NEMA 17 R</text>
+  <path class="l" d="M120 86H158" marker-end="url(#a)"/><path class="l" d="M260 86H298" marker-end="url(#a)"/>
+  <text class="s" x="264" y="80">3V3</text>
+  <path class="l" d="M65 64V12H485V52H498M485 52V140H498" stroke-dasharray="4 3"/>
+  <text class="s" x="160" y="26">motor supply (VM)</text>
+  <path class="l" d="M440 86H470V38H498M470 86V126H498"/>
+  <path class="l" d="M490 38H498" marker-end="url(#a)"/><path class="l" d="M490 126H498" marker-end="url(#a)"/>
+  <path class="l" d="M600 42H618" marker-end="url(#a)"/><path class="l" d="M600 130H618" marker-end="url(#a)"/>
+  <path class="l" d="M370 128V184M340 184H640" stroke-width="2"/>
+  <text x="378" y="178">I²C</text>
+  <path class="l" d="M355 184V204M505 184V204M635 184V204"/>
+  <rect class="b" x="300" y="204" width="110" height="32"/><text x="355" y="225" text-anchor="middle">BNO085 IMU</text>
+  <rect class="b" x="450" y="204" width="110" height="32"/><text x="505" y="225" text-anchor="middle">MT6701 L</text>
+  <rect class="b" x="580" y="204" width="110" height="32"/><text x="635" y="225" text-anchor="middle">MT6701 R</text>
+  <path class="l" d="M680 148V202" stroke-dasharray="2 3"/><text class="s" x="676" y="170" text-anchor="end">magnet</text>
+</svg>
+</div>
+<p class="cap">Solid arrows from the RP2040 are PIO-generated STEP/DIR. Each MT6701 reads a diametric magnet on its motor shaft, so the wheel angle is measured directly instead of assumed from commanded steps.</p>
+
+<h2>Firmware</h2>
+<table class="k">
+  <tr><td>Sensor core</td><td>Polls both MT6701 encoders and the BNO085 over I²C and fuses wheel odometry with IMU heading into a pose estimate.</td></tr>
+  <tr><td>Motion core</td><td>Plans the trajectory and computes wheel velocity targets from the current pose estimate.</td></tr>
+  <tr><td>PIO</td><td>Generates STEP/DIR pulse trains for both TMC2209s in hardware. Step timing is unaffected by I²C transactions or interrupts on either core.</td></tr>
+</table>
+<p>Splitting sensing and planning across the two cores keeps slow I²C reads out of the planning loop. Moving step generation onto PIO removes it from both.</p>
+
+<h2>Motion</h2>
+<p>The robot runs one continuous slalom path through the course instead of a queue of drive/stop/pivot moves. Wheel velocity stays nonzero between start and finish, so there are no stop points where timing error builds up or where the floor can disturb a pivot. A body velocity (<i>v</i>, <i>ω</i>) maps to wheel speeds by differential-drive inverse kinematics, with wheelbase <i>L</i>. Pose is integrated every control tick:</p>
+<div class="eq">
+v<sub>R</sub> = v + (L/2)·ω &nbsp;&nbsp; v<sub>L</sub> = v − (L/2)·ω<br>
+x<sub>k+1</sub> = x<sub>k</sub> + v<sub>k</sub>·cos θ<sub>k</sub>·Δt &nbsp;&nbsp; y<sub>k+1</sub> = y<sub>k</sub> + v<sub>k</sub>·sin θ<sub>k</sub>·Δt &nbsp;&nbsp; θ<sub>k+1</sub> = θ<sub>k</sub> + ω<sub>k</sub>·Δt
+</div>
+
+<h2>Proposed vs. shipped</h2>
+<p>Changes since the pre-season <a href="/data/scioly/roto_26.pdf">build proposal</a> (PDF, 7 MB):</p>
+<div class="wide">
+<table>
+  <thead><tr><th>Part</th><th>Proposed (Oct 2025)</th><th>Shipped</th></tr></thead>
+  <tr><td>MCU</td><td>Adafruit KB2040</td><td>RP2040 Zero</td></tr>
+  <tr><td>Stepper driver</td><td>TMC2208</td><td>TMC2209</td></tr>
+  <tr><td>Encoder</td><td>AS5600 (fixed I²C address, needs two buses)</td><td>MT6701</td></tr>
+  <tr><td>IMU</td><td>MPU9250/6500</td><td>BNO085</td></tr>
+</table>
+</div>
+<!-- TODO(nathan): add one line per row on WHY each part changed. -->
+
+<h2>Previous versions</h2>
+<div class="prev">
+  <figure>
+    <img src="v2024.webp" width="360" height="480" loading="lazy" decoding="async" alt="2024 Robot Tour robot on a wood floor">
+    <figcaption>2024</figcaption>
+    <ul><li>Arduino Uno (ATmega328P)</li><li>Pololu Romi gearmotors + hall encoders</li><li>L298N H-bridge</li><li>Stop-and-pivot command queue</li></ul>
+  </figure>
+  <figure>
+    <img src="v2025.webp" width="360" height="480" loading="lazy" decoding="async" alt="2025 Robot Tour robot on carpet">
+    <figcaption>2025</figcaption>
+    <ul><li>Arduino Uno (ATmega328P)</li><li>N20 gearmotors + hall encoders</li><li>TB6612 I²C motor shield</li><li>MPU6050 tried, dropped for gyro drift</li></ul>
+  </figure>
+</div>
+</main>
+<script>
+document.getElementById('load3d').onclick=function(){
+  self.ModelViewerElement={meshoptDecoderLocation:'https://cdn.jsdelivr.net/npm/meshoptimizer@0.22.0/meshopt_decoder.js'};
+  var s=document.createElement('script');s.type='module';
+  s.src='https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js';
+  document.head.appendChild(s);
+  var m=document.createElement('model-viewer');
+  [['src','roto.glb'],['poster','roto.webp'],['alt','Interactive 3D model of the Robot Tour robot'],['camera-controls',''],['camera-orbit','-40deg 62deg 70%'],['field-of-view','24deg'],['environment-image','neutral'],['shadow-intensity','0.6'],['interaction-prompt','none'],['touch-action','pan-y']].forEach(function(a){m.setAttribute(a[0],a[1])});
+  document.getElementById('cad').replaceChildren(m);
+};
+</script>
+</body>
+</html>

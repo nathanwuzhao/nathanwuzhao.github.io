@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Builds · Nathan Zhao</title>
+<meta name="description" content="Engineering builds by Nathan Zhao: robots, devices, and the CAD behind them.">
+<style>
+:root{--fg:#1a1a1a;--mute:#666;--line:#d6d6d6;--bg:#fff;--alt:#f5f5f5;--link:#0b57a4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+h1{font-size:20px;margin:0}
+nav{font-size:13px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:24px 0 6px}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;font-weight:600;color:var(--mute);background:var(--alt)}
+tbody tr:hover{background:var(--alt)}
+td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;border:1px solid var(--line)}
+.n{white-space:nowrap}
+.r{font-variant-numeric:tabular-nums}
+@media (max-width:560px){.hide-s{display:none}td img{width:72px;height:45px}}
+</style>
+<script type="speculationrules">{"prerender":[{"where":{"href_matches":"/engineering/*"},"eagerness":"moderate"}]}</script>
+</head>
+<body>
+<main>
+<header>
+  <h1>Nathan Zhao · Builds</h1>
+  <nav><a href="/">Research</a> · <a href="/data/nathan_zhao_resume.pdf">Resume</a> · <a href="https://github.com/nathanwuzhao/">GitHub</a> · <a href="mailto:nathanwuzhao@gmail.com">Email</a></nav>
+</header>
+
+<h2>Science Olympiad</h2>
+<table>
+<thead><tr><th></th><th>Build</th><th class="hide-s">Season</th><th>Result</th><th class="hide-s">Key parts</th></tr></thead>
+<tbody>
+<tr>
+  <td><a href="robot-tour/"><img src="robot-tour/thumb.webp" width="96" height="60" alt="Robot Tour CAD render"></a></td>
+  <td><a href="robot-tour/">Robot Tour</a><br><small>Closed-loop stepper robot, continuous-path motion</small></td>
+  <td class="n hide-s">2025–26</td>
+  <td class="r">State champion<br><small>0 cm distance error</small></td>
+  <td class="hide-s"><small>RP2040, NEMA 17, TMC2209, MT6701, BNO085</small></td>
+</tr>
+</tbody>
+</table>
+</main>
+<script>
+// Prefetch same-origin pages on hover/touch (fallback for browsers without speculation rules).
+addEventListener('pointerover',function(e){var a=e.target.closest&&e.target.closest('a');if(!a||a.origin!==location.origin||a.dataset.p)return;a.dataset.p=1;var l=document.createElement('link');l.rel='prefetch';l.href=a.href;document.head.appendChild(l)},{passive:true});
+</script>
+</body>
+</html>

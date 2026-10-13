@@ -1,0 +1,2 @@
+# Raw CAD exports are too big for GitHub; commit the optimized .glb instead
+*.gltf
