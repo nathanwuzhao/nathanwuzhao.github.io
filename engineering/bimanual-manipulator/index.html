@@ -33,7 +33,8 @@ th{font-weight:600;color:var(--mute);font-size:12px;background:var(--alt)}
 .spec td:first-child,.k td:first-child{color:var(--mute);white-space:nowrap;width:1%}
 .num td:nth-child(n+2){font-variant-numeric:tabular-nums;white-space:nowrap}
 .result{border-left:3px solid var(--acc);padding:2px 0 2px 10px}
-.eq{font:13px/1.9 ui-monospace,Consolas,monospace;background:var(--alt);padding:8px 12px;overflow-x:auto;white-space:nowrap}
+.math{background:var(--alt);padding:4px 12px;overflow-x:auto}
+.math math{font-size:1.15em;margin:8px 0;font-family:"Cambria Math","STIX Two Math","Latin Modern Math",math}
 .dia{overflow-x:auto}
 svg{display:block;width:100%;min-width:560px;height:auto;max-width:700px}
 svg text{fill:currentColor;font:12px system-ui,sans-serif}
@@ -42,14 +43,16 @@ svg .b{fill:var(--alt);stroke:currentColor}
 svg .l{stroke:currentColor;fill:none}
 .cap{font-size:12px;color:var(--mute)}
 .wide{overflow-x:auto}
+.links{margin:8px 0 0;font-size:13px;color:var(--mute)}
 </style>
 </head>
 <body>
 <main>
 <header>
   <h1>Bimanual Mobile Manipulator</h1>
-  <span class="crumb"><a href="/engineering/">Builds</a> / ISEF / 2024–25</span>
+  <span class="crumb"><a href="/engineering/">Engineering Portfolio</a> / ISEF / 2024–25</span>
 </header>
+<p class="links"><a href="/data/isef2025_poster.pdf">ISEF poster</a> (PDF) · <a href="https://isef.net/project/robo060-bimanual-robot-for-assisted-living">ISEF project page</a></p>
 
 <div class="top">
   <div class="cad" id="cad">
@@ -62,7 +65,7 @@ svg .l{stroke:currentColor;fill:none}
     <tr><td>Main MCU</td><td>ESP32 (Wi-Fi command link)</td></tr>
     <tr><td>Subsystem MCUs</td><td>3× LGT8F328P (drive, lift, extension)</td></tr>
     <tr><td>Bus</td><td>I²C, level-shifted</td></tr>
-    <tr><td>Motors</td><td>775-class brushed DC planetary gearmotors</td></tr>
+    <tr><td>Motors</td><td>775 planetary (drive), 550 worm (lifts), 370 worm (arms)</td></tr>
     <tr><td>Motor drivers</td><td>BTS7960</td></tr>
     <tr><td>Servo driver</td><td>PCA9685 (shoulder, wrist)</td></tr>
     <tr><td>Feedback</td><td>Quadrature encoders, laser ToF</td></tr>
@@ -78,7 +81,7 @@ svg .l{stroke:currentColor;fill:none}
 
 <h2>System</h2>
 <div class="dia">
-<svg viewBox="0 0 700 300" role="img" aria-label="Block diagram. A laptop running YOLOv5, OpenCV, and the teleop interface receives the overhead camera feed and sends commands over Wi-Fi to an ESP32. The ESP32 talks over a level-shifted I²C bus to three LGT8F328P controllers (drive base, lift, extension) and a PCA9685 servo driver. Each LGT8F328P drives 775 gearmotors with encoders through BTS7960 drivers. The PCA9685 drives the shoulder and wrist servos. A 3S2P LiPo powers the motor drivers directly and feeds a buck converter for the 5 V logic rail.">
+<svg viewBox="0 0 700 300" role="img" aria-label="Block diagram. A laptop running YOLOv5, OpenCV, and the teleop interface receives the overhead camera feed and sends commands over Wi-Fi to an ESP32. The ESP32 talks over a level-shifted I²C bus to three LGT8F328P controllers (drive base, lift, extension) and a PCA9685 servo driver. Each LGT8F328P drives its subsystem motors with encoders through BTS7960 drivers: 775 planetary gearmotors for the drive base, 550 worm gearmotors for the lifts, and 370 worm gearmotors for the arms. The PCA9685 drives the shoulder and wrist servos. A 3S2P LiPo powers the motor drivers directly and feeds a buck converter for the 5 V logic rail.">
   <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="currentColor"/></marker></defs>
   <rect class="b" x="10" y="20" width="130" height="50"/><text x="75" y="41" text-anchor="middle">Laptop</text><text class="s" x="75" y="58" text-anchor="middle">vision · teleop UI</text>
   <rect class="b" x="10" y="94" width="130" height="32"/><text x="75" y="114" text-anchor="middle">Overhead camera</text>
@@ -96,9 +99,9 @@ svg .l{stroke:currentColor;fill:none}
   <rect class="b" x="330" y="200" width="110" height="32"/><text x="385" y="220" text-anchor="middle">BTS7960</text>
   <rect class="b" x="450" y="200" width="110" height="32"/><text x="505" y="220" text-anchor="middle">BTS7960</text>
   <rect class="b" x="570" y="200" width="110" height="40"/><text x="625" y="217" text-anchor="middle">Servos</text><text class="s" x="625" y="232" text-anchor="middle">shoulder · wrist</text>
-  <rect class="b" x="210" y="252" width="110" height="40"/><text x="265" y="269" text-anchor="middle">775 gearmotors</text><text class="s" x="265" y="284" text-anchor="middle">+ quad. encoders</text>
-  <rect class="b" x="330" y="252" width="110" height="40"/><text x="385" y="269" text-anchor="middle">775 gearmotors</text><text class="s" x="385" y="284" text-anchor="middle">+ quad. encoders</text>
-  <rect class="b" x="450" y="252" width="110" height="40"/><text x="505" y="269" text-anchor="middle">775 gearmotors</text><text class="s" x="505" y="284" text-anchor="middle">+ quad. encoders</text>
+  <rect class="b" x="210" y="252" width="110" height="40"/><text x="265" y="269" text-anchor="middle">775 planetary</text><text class="s" x="265" y="284" text-anchor="middle">+ quad. encoders</text>
+  <rect class="b" x="330" y="252" width="110" height="40"/><text x="385" y="269" text-anchor="middle">550 worm</text><text class="s" x="385" y="284" text-anchor="middle">+ quad. encoders</text>
+  <rect class="b" x="450" y="252" width="110" height="40"/><text x="505" y="269" text-anchor="middle">370 worm</text><text class="s" x="505" y="284" text-anchor="middle">+ quad. encoders</text>
   <path class="l" d="M265 180V198" marker-end="url(#a)"/><path class="l" d="M385 180V198" marker-end="url(#a)"/><path class="l" d="M505 180V198" marker-end="url(#a)"/><path class="l" d="M625 180V198" marker-end="url(#a)"/>
   <path class="l" d="M265 232V250" marker-end="url(#a)"/><path class="l" d="M385 232V250" marker-end="url(#a)"/><path class="l" d="M505 232V250" marker-end="url(#a)"/>
   <rect class="b" x="10" y="176" width="130" height="40"/><text x="75" y="193" text-anchor="middle">3S2P LiPo</text><text class="s" x="75" y="208" text-anchor="middle">11.1 V nominal</text>
@@ -118,18 +121,20 @@ svg .l{stroke:currentColor;fill:none}
   <tr><td>LGT8F328P ×3</td><td>One per subsystem (drive base, lift, extension). Runs PIDF on quadrature encoder feedback, with trapezoidal motion profiles for smooth moves and a feedforward term that holds position under load.</td></tr>
   <tr><td>PCA9685</td><td>Generates PWM for the shoulder and wrist servos.</td></tr>
 </table>
-<div class="eq">
-u(t) = K<sub>p</sub>·e(t) + K<sub>i</sub>·∫e(τ)dτ + K<sub>d</sub>·de/dt + F<br>
-d<sub>L</sub> = r·Δφ<sub>L</sub> &nbsp;&nbsp; d<sub>R</sub> = r·Δφ<sub>R</sub> &nbsp;&nbsp; d = (d<sub>L</sub> + d<sub>R</sub>)/2 &nbsp;&nbsp; Δθ = (d<sub>R</sub> − d<sub>L</sub>)/L
+<div class="math">
+<math display="block"><mi>u</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mi>K</mi><mi>p</mi></msub><mi>e</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo><mo>+</mo><msub><mi>K</mi><mi>i</mi></msub><msubsup><mo>∫</mo><mn>0</mn><mi>t</mi></msubsup><mi>e</mi><mo stretchy="false">(</mo><mi>τ</mi><mo stretchy="false">)</mo><mspace width="0.17em"/><mi>d</mi><mi>τ</mi><mo>+</mo><msub><mi>K</mi><mi>d</mi></msub><mfrac><mrow><mi>d</mi><mi>e</mi><mo stretchy="false">(</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>+</mo><mi>F</mi></math>
+<math display="block"><msub><mi>d</mi><mi>L</mi></msub><mo>=</mo><mi>r</mi><mi mathvariant="normal">Δ</mi><msub><mi>φ</mi><mi>L</mi></msub><mo>,</mo><mspace width="2em"/><msub><mi>d</mi><mi>R</mi></msub><mo>=</mo><mi>r</mi><mi mathvariant="normal">Δ</mi><msub><mi>φ</mi><mi>R</mi></msub></math>
+<math display="block"><mi>d</mi><mo>=</mo><mfrac><mrow><msub><mi>d</mi><mi>L</mi></msub><mo>+</mo><msub><mi>d</mi><mi>R</mi></msub></mrow><mn>2</mn></mfrac><mo>,</mo><mspace width="2em"/><mi mathvariant="normal">Δ</mi><mi>θ</mi><mo>=</mo><mfrac><mrow><msub><mi>d</mi><mi>R</mi></msub><mo>−</mo><msub><mi>d</mi><mi>L</mi></msub></mrow><mi>L</mi></mfrac></math>
 </div>
+<p class="cap">PIDF with feedforward term <i>F</i>. Odometry: <i>r</i> wheel radius, <i>Δφ</i> wheel rotation, <i>L</i> wheelbase.</p>
 <p>The drive base navigates by dead reckoning from wheel encoders. For assisted grasping, the laptop runs camera frames through OpenCV and YOLOv5, tracks the detected object's center, and uses feedforward to align the servos with it. When the end effector's laser ToF reports the object in range, the gripper closes automatically.</p>
 
 <h2>Mechanisms</h2>
 <table class="k">
-  <tr><td>Drive base</td><td>Two-wheel differential drive</td></tr>
-  <tr><td>Lift (×2)</td><td>Independent per arm. Worm-gear, belt-driven vertical lift, with the arm carriage on a V-wheel Z-axis plate.</td></tr>
+  <tr><td>Drive base</td><td>Two-wheel differential drive, 775 planetary gearmotors</td></tr>
+  <tr><td>Lift (×2)</td><td>Independent per arm. 550 worm gearmotor driving a belt lift, with the arm carriage on a V-wheel Z-axis plate.</td></tr>
   <tr><td>Shoulder</td><td>Servo pivot</td></tr>
-  <tr><td>Arm</td><td>Telescoping tube, extended by a worm-gear-driven winch</td></tr>
+  <tr><td>Arm</td><td>Telescoping tube, extended by a winch on a 370 worm gearmotor</td></tr>
   <tr><td>Wrist</td><td>2-DOF differential</td></tr>
   <tr><td>End effector</td><td>Compliant-wheel mechanical gripper with a polycarbonate roller plate and a laser ToF distance sensor</td></tr>
 </table>
@@ -148,7 +153,6 @@ d<sub>L</sub> = r·Δφ<sub>L</sub> &nbsp;&nbsp; d<sub>R</sub> = r·Δφ<sub>R</
   <tr><td>Drive speed, with payload</td><td>—</td><td>&gt; 1.2 m/s</td></tr>
 </table>
 </div>
-<p><a href="/data/isef2025_poster.pdf">ISEF poster</a> (PDF) · <a href="https://isef.net/project/robo060-bimanual-robot-for-assisted-living">ISEF project page</a></p>
 </main>
 <script>
 document.getElementById('load3d').onclick=function(){

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VIGIL · Nathan Zhao</title>
+<meta name="description" content="VIGIL assistive eyewear: dual-board ESP32 glasses with ToF ranging, servo haptic cues, MJPEG video, and a UDP control protocol with a 600 ms failsafe. 3rd overall at HackGT 13.">
+<style>
+:root{--fg:#1a1a1a;--mute:#666;--line:#d6d6d6;--bg:#fff;--alt:#f5f5f5;--link:#0b57a4;--acc:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+h1{font-size:20px;margin:0}
+.crumb{font-size:13px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:28px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p{margin:6px 0 10px;max-width:72ch}
+.top{display:grid;grid-template-columns:1fr 300px;gap:16px;margin-top:14px;align-items:start}
+.top>*{min-width:0}
+@media (max-width:720px){.top{grid-template-columns:1fr}}
+.hero{border:1px solid var(--line);background:#fff;padding:8px}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--mute);font-size:12px;background:var(--alt)}
+.spec td:first-child,.k td:first-child{color:var(--mute);white-space:nowrap;width:1%}
+code,.eq{font:13px ui-monospace,Consolas,monospace}
+.k code{white-space:nowrap}
+.result{border-left:3px solid var(--acc);padding:2px 0 2px 10px}
+.eq{line-height:1.9;background:var(--alt);padding:8px 12px;overflow-x:auto;white-space:nowrap}
+svg{display:block;width:100%;height:auto}
+svg text{fill:currentColor;font:12px system-ui,sans-serif}
+svg .s{fill:var(--mute);font-size:10.5px}
+svg .b{fill:var(--alt);stroke:currentColor}
+svg .l{stroke:currentColor;fill:none}
+svg .g{fill:none;stroke:var(--mute);stroke-dasharray:5 4}
+.cap{font-size:12px;color:var(--mute)}
+.wide{overflow-x:auto}
+.links{margin:8px 0 0;font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>VIGIL</h1>
+  <span class="crumb"><a href="/engineering/">Engineering Portfolio</a> / HackGT 13 / 2026</span>
+</header>
+<p class="links"><a href="https://devpost.com/software/vigil-assistive-eeywear-with-an-autonomous-aerial-scout">Devpost</a> · <a href="https://github.com/parthm667/vigil/tree/main/firmware">Firmware on GitHub</a> · <a href="https://youtu.be/AqV3zwgGGPI">Demo video</a></p>
+
+<div class="top">
+  <figure class="hero" style="margin:0">
+<svg viewBox="0 0 480 360" role="img" aria-label="Glasses wiring and network diagram. Two VL53L0X ToF sensors at I²C addresses 0x30 and 0x31 connect to a Nano ESP32. The Nano drives two SG90 haptic pads on pins D7 and D6. One 5 V supply feeds two regulators: one for the servos only, one for the microcontrollers, sensors, and ESP32-CAM. An ESP32-CAM with an OV2640 hosts the Wi-Fi access point. The Nano joins that access point, with no wires between the two boards. The laptop exchanges UDP telemetry and commands with the Nano and receives MJPEG video from the ESP32-CAM.">
+  <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" fill="currentColor"/></marker></defs>
+  <rect class="g" x="5" y="5" width="335" height="350"/>
+  <text class="s" x="14" y="20">GLASSES (WORN)</text>
+  <rect class="b" x="15" y="30" width="110" height="36"/><text x="70" y="46" text-anchor="middle">VL53L0X L</text><text class="s" x="70" y="59" text-anchor="middle">ToF · I²C 0x30</text>
+  <rect class="b" x="15" y="74" width="110" height="36"/><text x="70" y="90" text-anchor="middle">VL53L0X R</text><text class="s" x="70" y="103" text-anchor="middle">ToF · I²C 0x31</text>
+  <path class="l" d="M125 48H150V92H125M150 70H185"/>
+  <text class="s" x="154" y="64">I²C</text>
+  <rect class="b" x="185" y="36" width="145" height="96"/><text x="257" y="58" text-anchor="middle">Nano ESP32</text><text class="s" x="257" y="75" text-anchor="middle">ESP32-S3 · station</text><text class="s" x="257" y="90" text-anchor="middle">192.168.4.50</text><text class="s" x="257" y="105" text-anchor="middle">UDP 4210</text><text class="s" x="257" y="120" text-anchor="middle">failsafe watchdog</text>
+  <rect class="b" x="15" y="146" width="110" height="36"/><text x="70" y="162" text-anchor="middle">SG90 pad L</text><text class="s" x="70" y="175" text-anchor="middle">PWM D7</text>
+  <rect class="b" x="15" y="190" width="110" height="36"/><text x="70" y="206" text-anchor="middle">SG90 pad R</text><text class="s" x="70" y="219" text-anchor="middle">PWM D6</text>
+  <path class="l" d="M185 118H162V158H127" marker-end="url(#a)"/>
+  <path class="l" d="M162 158V202H127" marker-end="url(#a)"/>
+  <rect class="b" x="15" y="236" width="110" height="34"/><text x="70" y="251" text-anchor="middle">Regulator A</text><text class="s" x="70" y="264" text-anchor="middle">servos only</text>
+  <rect class="b" x="15" y="280" width="110" height="34"/><text x="70" y="295" text-anchor="middle">Regulator B</text><text class="s" x="70" y="308" text-anchor="middle">MCUs · ToF · CAM</text>
+  <rect class="b" x="15" y="324" width="110" height="24"/><text x="70" y="340" text-anchor="middle">5 V supply</text>
+  <path class="l" d="M70 324V316" marker-end="url(#a)"/>
+  <path class="l" d="M15 336H9V253H13" marker-end="url(#a)"/>
+  <path class="l" d="M125 297H183" stroke-dasharray="4 3" marker-end="url(#a)"/>
+  <path class="l" d="M125 253H142V172H127" stroke-dasharray="4 3" marker-end="url(#a)"/>
+  <path class="l" d="M142 216H127" stroke-dasharray="4 3" marker-end="url(#a)"/>
+  <rect class="b" x="185" y="246" width="145" height="64"/><text x="257" y="266" text-anchor="middle">ESP32-CAM</text><text class="s" x="257" y="282" text-anchor="middle">OV2640 · Wi-Fi AP</text><text class="s" x="257" y="297" text-anchor="middle">192.168.4.1</text>
+  <path class="l" d="M257 132V244" stroke-dasharray="2 3" marker-end="url(#a)"/>
+  <text class="s" x="263" y="186">joins AP</text><text class="s" x="263" y="199">(no wires)</text>
+  <rect class="b" x="372" y="130" width="100" height="64"/><text x="422" y="152" text-anchor="middle">Laptop</text><text class="s" x="422" y="168" text-anchor="middle">Python host</text><text class="s" x="422" y="183" text-anchor="middle">perception</text>
+  <path class="l" d="M332 60H400V128" stroke-dasharray="2 3" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="s" x="346" y="53">UDP</text>
+  <path class="l" d="M332 278H422V196" stroke-dasharray="2 3" marker-end="url(#a)"/>
+  <text class="s" x="346" y="271">MJPEG</text>
+</svg>
+  </figure>
+  <table class="spec">
+    <tr><td>My role</td><td>Glasses electronics + firmware</td></tr>
+    <tr><td>MCUs</td><td>Nano ESP32 (ESP32-S3), ESP32-CAM</td></tr>
+    <tr><td>Camera</td><td>OV2640, 640×480 MJPEG, ~12 fps</td></tr>
+    <tr><td>Ranging</td><td>2× VL53L0X ToF</td></tr>
+    <tr><td>Haptics</td><td>2× SG90 servo pads</td></tr>
+    <tr><td>Link</td><td>Wi-Fi AP, UDP + HTTP</td></tr>
+    <tr><td>Telemetry</td><td>~15 Hz</td></tr>
+    <tr><td>Failsafe</td><td>Release after 600 ms of silence</td></tr>
+    <tr><td>Firmware</td><td>C++, Arduino-ESP32</td></tr>
+    <tr><td>Host</td><td>Python</td></tr>
+    <tr><td>Power</td><td>5 V supply, split servo / logic regulators</td></tr>
+  </table>
+</div>
+
+<h2>Challenge</h2>
+<p>VIGIL helps a blind or low-vision user find an object. A scout drone searches the room and locates the object, and the glasses guide the wearer to it. The glasses have to give an unmistakable left/right cue and warn about obstacles while streaming video. All of this runs over an offline 2.4 GHz link that drops packets, and a dropped link must never leave a servo pressed against someone's face.</p>
+<p class="result">3rd overall of 268 at HackGT 13.</p>
+
+<h2>Architecture</h2>
+<p>The two boards share an access point but have no wires between them. The ESP32-CAM hosts the AP and serves video. The Nano joins the AP as a station and talks to the laptop directly. An earlier version relayed the Nano's bytes to the laptop through the CAM over UART. That design made servo commands queue behind a task that was also shipping 25 KB JPEG frames, and every protocol change meant opening the glasses to reflash the CAM. Splitting the paths removed both problems: control latency no longer depends on video, and a protocol change is a Nano-only reflash over USB-C.</p>
+<div class="wide">
+<table>
+  <thead><tr><th>Board</th><th>Address</th><th>Serves</th></tr></thead>
+  <tr><td>ESP32-CAM</td><td><code>192.168.4.1</code></td><td><code>/stream</code> MJPEG, <code>/health</code> JSON</td></tr>
+  <tr><td>Nano ESP32</td><td><code>192.168.4.50</code></td><td>UDP 4210 telemetry + commands, 1 Hz discovery beacon on 4211</td></tr>
+</table>
+</div>
+<p class="cap">The laptop uses a second Wi-Fi adapter for the drone's own AP. The two networks are on separate subnets (192.168.4.x and 192.168.10.x), so the OS routes each by interface with no conflict.</p>
+<figure style="margin:8px 0 0">
+  <a href="/images/vigil_network.jpg"><img src="/images/vigil_network.jpg" width="800" height="450" loading="lazy" decoding="async" style="width:100%;height:auto;border:1px solid var(--line)" alt="Network architecture: glasses boards on the ESP32-CAM's access point, laptop with two Wi-Fi adapters, one for the glasses network and one for the DJI Tello's network"></a>
+  <figcaption class="cap">Full network: glasses on one adapter, the drone on the other.</figcaption>
+</figure>
+
+<h2>Protocol</h2>
+<p>ASCII lines, one per UDP datagram. Telemetry from the Nano:</p>
+<div class="eq">T,&lt;seq&gt;,&lt;uptime_ms&gt;,&lt;tof_l_mm&gt;,&lt;tof_r_mm&gt;,&lt;press_l&gt;,&lt;press_r&gt;,&lt;link&gt;</div>
+<table class="k">
+  <tr><td><code>D,&lt;dir&gt;</code></td><td>Primary cue: −1 left, 0 none, +1 right. The pad opposite the turn presses, nudging the wearer the right way.</td></tr>
+  <tr><td><code>H,&lt;l&gt;,&lt;r&gt;</code></td><td>Hold press depth, 0–100 per side.</td></tr>
+  <tr><td><code>P,&lt;side&gt;,…</code></td><td>Pulse burst for events like "arrived". The Nano generates it as a non-blocking state machine, because timing a rhythm from Python over congested Wi-Fi comes out ragged.</td></tr>
+  <tr><td><code>Z</code></td><td>Release both pads immediately.</td></tr>
+  <tr><td><code>C,&lt;side&gt;,…</code></td><td>Retrim one side's servo angles at runtime, without reflashing.</td></tr>
+</table>
+<p>The host sends absolute setpoints, not increments, and resends them at 20 Hz. A dropped packet costs one stale update instead of desynchronizing pad position, and the resend stream feeds the Nano's watchdog. <code>press_l</code>/<code>press_r</code> report what the hardware actually applied, so the host can confirm its commands arrived.</p>
+
+<h2>Safety</h2>
+<table class="k">
+  <tr><td>Link loss</td><td>No command for 600 ms → both pads release to 0%. That's 12× margin over the 20 Hz resend. Losing the link means no guidance, never a pad held against the face.</td></tr>
+  <tr><td>Bad input</td><td><code>D,0</code>, non-integers, and out-of-range values all release. No cue beats a wrong cue. Only one pad is ever driven at a time.</td></tr>
+  <tr><td>Travel clamp</td><td>Compile-time maximum press angle per side, so no command value can over-drive a pad.</td></tr>
+  <tr><td>Servo floor</td><td>600 µs minimum pulse instead of 500 µs. At 500 µs the SG90 can stall against its end stop and draw ~700 mA.</td></tr>
+  <tr><td>Power</td><td>One 5 V supply feeds two high-current regulators: one dedicated to the servos, one for the MCUs, ToF sensors, and ESP32-CAM. Two SG90s draw over 1 A together, so their current spikes stay off the logic rail.</td></tr>
+</table>
+
+<h2>Testing</h2>
+<p>Command parsing, press math, the travel clamp, burst timing, and the failsafe release were tested in a native harness. It runs 26 assertions against the real <code>.ino</code>, compiled with MSVC against Arduino stubs. Sensors, servo PWM, the access point and video stream, and the Nano joining the AP were all verified on hardware.</p>
+
+</main>
+</body>
+</html>
