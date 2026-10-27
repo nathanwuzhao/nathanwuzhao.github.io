@@ -15,7 +15,6 @@ a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
 header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
 h1{font-size:20px;margin:0}
 nav{font-size:13px}
-h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:24px 0 6px}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
 th:nth-child(1){width:112px}th:nth-child(3){width:80px}th:nth-child(4){width:130px}th:nth-child(5){width:200px}
 @media (max-width:560px){th:nth-child(1){width:88px}th:nth-child(4){width:120px}}
@@ -36,8 +35,7 @@ td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;b
   <nav><a href="/">Research</a> · <a href="/data/nathan_zhao_resume.pdf">Resume</a> · <a href="https://github.com/nathanwuzhao/">GitHub</a> · <a href="mailto:nathanwuzhao@gmail.com">Email</a></nav>
 </header>
 
-<h2>Science Olympiad</h2>
-<table>
+<table style="margin-top:16px">
 <thead><tr><th></th><th>Project</th><th class="hide-s">Year</th><th>Result</th><th class="hide-s">Disciplines</th></tr></thead>
 <tbody>
 <tr>
@@ -47,32 +45,19 @@ td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;b
   <td class="r">State champion</td>
   <td class="hide-s"><small>Firmware · Controls · CAD</small></td>
 </tr>
-</tbody>
-</table>
-
-<h2>Science fair</h2>
-<table>
-<thead><tr><th></th><th>Project</th><th class="hide-s">Year</th><th>Result</th><th class="hide-s">Disciplines</th></tr></thead>
-<tbody>
-<tr>
-  <td><a href="bimanual-manipulator/"><img src="bimanual-manipulator/thumb.webp" width="96" height="60" alt="Bimanual manipulator CAD render"></a></td>
-  <td><a href="bimanual-manipulator/">Bimanual Mobile Manipulator</a><br><small>Dual-arm assisted-living robot, independent lifts, vision-assisted grasp</small></td>
-  <td class="n hide-s">2025</td>
-  <td class="r">ISEF 4th (ROBO)</td>
-  <td class="hide-s"><small>Mechanical · Controls · Vision</small></td>
-</tr>
-</tbody>
-</table>
-<h2>Hackathons</h2>
-<table>
-<thead><tr><th></th><th>Project</th><th class="hide-s">Year</th><th>Result</th><th class="hide-s">Disciplines</th></tr></thead>
-<tbody>
 <tr>
   <td><a href="vigil/"><img src="vigil/thumb.webp" width="96" height="60" alt="VIGIL glasses and drone network diagram"></a></td>
   <td><a href="vigil/">VIGIL</a><br><small>Assistive glasses with haptic guidance and a scout drone</small></td>
   <td class="n hide-s">2026</td>
   <td class="r">HackGT 3rd</td>
   <td class="hide-s"><small>Electronics · Firmware · Networking</small></td>
+</tr>
+<tr>
+  <td><a href="bimanual-manipulator/"><img src="bimanual-manipulator/thumb.webp" width="96" height="60" alt="Bimanual manipulator CAD render"></a></td>
+  <td><a href="bimanual-manipulator/">Bimanual Mobile Manipulator</a><br><small>Dual-arm assisted-living robot, independent lifts, vision-assisted grasp</small></td>
+  <td class="n hide-s">2025</td>
+  <td class="r">ISEF 4th (ROBO)</td>
+  <td class="hide-s"><small>Mechanical · Controls · Vision</small></td>
 </tr>
 </tbody>
 </table>
