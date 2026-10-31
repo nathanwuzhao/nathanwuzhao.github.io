@@ -161,7 +161,7 @@ document.getElementById('load3d').onclick=function(){
   s.src='https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js';
   document.head.appendChild(s);
   var m=document.createElement('model-viewer');
-  [['src','model.glb'],['poster','poster.webp'],['alt','Interactive 3D model of the bimanual mobile manipulator'],['camera-controls',''],['camera-orbit','-35deg 75deg 105%'],['field-of-view','24deg'],['environment-image','neutral'],['shadow-intensity','0.6'],['interaction-prompt','none'],['touch-action','pan-y']].forEach(function(a){m.setAttribute(a[0],a[1])});
+  [['src','model.glb'],['poster','poster.webp'],['alt','Interactive 3D model of the bimanual mobile manipulator'],['camera-controls',''],['camera-orbit','-35deg 75deg 105%'],['field-of-view','24deg'],['environment-image','legacy'],['shadow-intensity','0.6'],['interaction-prompt','none'],['touch-action','pan-y']].forEach(function(a){m.setAttribute(a[0],a[1])});
   document.getElementById('cad').replaceChildren(m);
 };
 </script>

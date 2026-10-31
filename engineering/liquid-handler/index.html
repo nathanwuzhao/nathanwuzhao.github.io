@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gantry Liquid Handler · Nathan Zhao</title>
+<meta name="description" content="A broken school 3D printer rebuilt as a gantry liquid handler: MGN12 linear rails on Y, belt-driven Z, braced 2020 frame. Only the heated bed and extrusions were kept.">
+<style>
+:root{--fg:#1a1a1a;--mute:#666;--line:#d6d6d6;--bg:#fff;--alt:#f5f5f5;--link:#0b57a4;--acc:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+h1{font-size:20px;margin:0}
+.crumb{font-size:13px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:28px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p{margin:6px 0 10px}
+.top{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:16px;margin-top:14px;align-items:start}
+.top>*{min-width:0}
+@media (max-width:640px){.top{grid-template-columns:1fr}}
+.cad{position:relative;aspect-ratio:4/5;background:#fff;border:1px solid var(--line)}
+.cad button{all:unset;cursor:pointer;display:block;width:100%;height:100%}
+.cad img{display:block;width:100%;height:100%;object-fit:contain}
+.cad span{position:absolute;left:8px;bottom:8px;background:#1a1a1a;color:#fff;font-size:12px;padding:4px 8px}
+.cad button:focus-visible span,.cad button:hover span{background:var(--acc)}
+model-viewer{width:100%;height:100%;--poster-color:#fff}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--mute);font-size:12px;background:var(--alt)}
+.spec td:first-child,.k td:first-child{color:var(--mute);white-space:nowrap;width:1%}
+.result{border-left:3px solid var(--acc);padding:2px 0 2px 10px}
+figure{margin:0}figcaption{font-size:12px;color:var(--mute)}
+figure img{display:block;width:100%;max-width:300px;height:auto;border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Gantry Liquid Handler</h1>
+  <span class="crumb"><a href="/engineering/">Engineering Portfolio</a> / Personal / 2025–26</span>
+</header>
+
+<div class="top">
+  <div class="cad" id="cad">
+    <button type="button" id="load3d" aria-label="Load interactive 3D model">
+      <img src="poster.webp" width="800" height="1000" alt="CAD render of the rebuilt gantry: braced 2020 frame, heated bed on twin linear rails, X gantry with syringe tool, and the Z belt drive across the top">
+      <span>▶ Rotate in 3D · 3.0 MB</span>
+    </button>
+  </div>
+  <table class="spec">
+    <tr><td>Frame</td><td>2020 aluminum extrusion (reused), corner plates and brackets</td></tr>
+    <tr><td>Bracing</td><td>2× ¼" threaded-rod diagonals, 545 mm, rod ends</td></tr>
+    <tr><td>Y axis</td><td>2× MGN12 rails, 400 mm, MGN12H blocks</td></tr>
+    <tr><td>X axis</td><td>V-slot wheels on 625-2RS bearings</td></tr>
+    <tr><td>Z axis</td><td>Belt-driven, top motor, cross shaft to both sides</td></tr>
+    <tr><td>Motors</td><td>3× NEMA 17 steppers (X, Y, Z)</td></tr>
+    <tr><td>Controller</td><td>Mellow FLY-D5</td></tr>
+    <tr><td>Firmware</td><td>Klipper</td></tr>
+    <tr><td>Bed</td><td>Original heated bed, silicone spacers</td></tr>
+    <tr><td>CAD</td><td>Onshape</td></tr>
+  </table>
+</div>
+
+<h2>Challenge</h2>
+<p>The school's 3D printer had broken down. Instead of repairing it, I redesigned the whole machine around a new job: positioning a liquid-handling tool repeatably over the bed. That meant a stiffer frame, rail-guided Y travel, and a Z axis that lifts both ends of the gantry together. Everything except the heated bed, the aluminum extrusions, and one repurposed lead screw is new.</p>
+<p class="result">Used to automatically dispense growth media into plates, with volume accuracy within 0.5 mL. Positioning repeatability is about ±0.1 mm on all axes, set mostly by belt tension and V-wheel preload.</p>
+
+<h2>Mechanisms</h2>
+<table class="k">
+  <tr><td>Frame</td><td>Original 2020 extrusions with corner plates at the joints, plus two diagonal threaded-rod braces from the top corners to the base to resist racking.</td></tr>
+  <tr><td>Y axis</td><td>Bed carried on two MGN12 linear rails with MGN12H blocks.</td></tr>
+  <tr><td>X axis</td><td>Gantry carriage on V-slot wheels with 625-2RS bearings.</td></tr>
+  <tr><td>Z axis</td><td>Belt-driven. One NEMA 17 on the top beam turns a cross shaft that drives a belt on each side, so both ends of the X gantry lift together. The cross shaft is the old printer's T8 Z lead screw, reused.</td></tr>
+  <tr><td>Tool head</td><td>Converted from a hotend carriage to a liquid-handling mount. The end effector in the CAD is a placeholder.</td></tr>
+</table>
+
+<h2>Before</h2>
+<figure>
+  <img src="before.webp" width="600" height="800" loading="lazy" alt="The original broken printer on the floor: blue-striped aluminum frame, bed, X gantry with cable chain, and the electronics box beside it">
+  <figcaption>The original printer as found: broken down, before the rebuild.</figcaption>
+</figure>
+</main>
+<script>
+document.getElementById('load3d').onclick=function(){
+  self.ModelViewerElement={meshoptDecoderLocation:'https://cdn.jsdelivr.net/npm/meshoptimizer@0.22.0/meshopt_decoder.js'};
+  var s=document.createElement('script');s.type='module';
+  s.src='https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js';
+  document.head.appendChild(s);
+  var m=document.createElement('model-viewer');
+  [['src','model.glb'],['poster','poster.webp'],['alt','Interactive 3D model of the gantry liquid handler'],['camera-controls',''],['camera-orbit','-35deg 70deg 100%'],['field-of-view','24deg'],['environment-image','legacy'],['shadow-intensity','0.6'],['interaction-prompt','none'],['touch-action','pan-y']].forEach(function(a){m.setAttribute(a[0],a[1])});
+  document.getElementById('cad').replaceChildren(m);
+};
+</script>
+</body>
+</html>
