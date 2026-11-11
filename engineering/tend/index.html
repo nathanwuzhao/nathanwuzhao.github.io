@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEND · Nathan Zhao</title>
+<meta name="description" content="TEND: a 7-servo Cartesian gripper that unscrews pill-bottle caps. ESP32-C6 servo and sensor hub, current-regulated grip force, 16×32 tactile link, Python control loop with a Gemini supervisor.">
+<style>
+:root{--fg:#1a1a1a;--mute:#666;--line:#d6d6d6;--bg:#fff;--alt:#f5f5f5;--link:#0b57a4;--acc:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 16px;border-bottom:2px solid var(--fg);padding-bottom:6px}
+h1{font-size:20px;margin:0}
+.crumb{font-size:13px}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:28px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p{margin:6px 0 10px}
+.top{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:16px;margin-top:14px;align-items:start}
+.top>*{min-width:0}
+@media (max-width:640px){.top{grid-template-columns:1fr}}
+.cad{position:relative;aspect-ratio:4/5;background:#fff;border:1px solid var(--line)}
+.cad button{all:unset;cursor:pointer;display:block;width:100%;height:100%}
+.cad img{display:block;width:100%;height:100%;object-fit:contain}
+.cad span{position:absolute;left:8px;bottom:8px;background:#1a1a1a;color:#fff;font-size:12px;padding:4px 8px}
+.cad button:focus-visible span,.cad button:hover span{background:var(--acc)}
+model-viewer{width:100%;height:100%;--poster-color:#fff}
+table{width:100%;border-collapse:collapse}
+td,th{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--mute);font-size:12px;background:var(--alt)}
+.spec td:first-child,.k td:first-child{color:var(--mute);white-space:nowrap;width:1%}
+code,.eq{font:13px ui-monospace,Consolas,monospace}
+.k code{white-space:nowrap}
+.result{border-left:3px solid var(--acc);padding:2px 0 2px 10px}
+.eq{line-height:1.9;background:var(--alt);padding:8px 12px;overflow-x:auto;white-space:nowrap}
+.dia{overflow-x:auto}
+svg{display:block;width:100%;min-width:560px;height:auto;max-width:700px}
+svg text{fill:currentColor;font:12px system-ui,sans-serif}
+svg .s{fill:var(--mute);font-size:10.5px}
+svg .b{fill:var(--alt);stroke:currentColor}
+svg .l{stroke:currentColor;fill:none}
+.cap{font-size:12px;color:var(--mute)}
+ol{margin:6px 0 10px;padding-left:22px}
+.links{margin:8px 0 0;font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>TEND</h1>
+  <span class="crumb"><a href="/engineering/">Engineering Portfolio</a> / MakeCU 2026</span>
+</header>
+<p class="links"><a href="https://devpost.com/software/tend-cartesian-gripper-with-tactile-vision-assistance">Devpost</a> · <a href="https://github.com/nathanwuzhao/makecu26">Code on GitHub</a> · <a href="https://youtu.be/xx2SKYT8yPc">Demo video</a></p>
+
+<div class="top">
+  <div class="cad" id="cad">
+    <button type="button" id="load3d" aria-label="Load interactive 3D model with an animated demo of the gripper's degrees of freedom">
+      <img src="poster.webp" width="800" height="1000" alt="CAD render of the TEND gripper: two stacked finger halves on a gusseted stand, each with a squeeze carriage and two sliding fingers">
+      <span>▶ 3D demo · 0.7 MB</span>
+    </button>
+  </div>
+  <table class="spec">
+    <tr><td>My role</td><td>Electronics, firmware, software, controls</td></tr>
+    <tr><td>MCU</td><td>ESP32-C6</td></tr>
+    <tr><td>Servos</td><td>7 (4× SG90, 3× MG90S) via PCA9685</td></tr>
+    <tr><td>Force sensing</td><td>2× INA219, high-side on the squeeze servos</td></tr>
+    <tr><td>Tactile</td><td>16×32 FlexiTac pad, Nano reader</td></tr>
+    <tr><td>Buses</td><td>2× I²C (400 / 100 kHz), UART 115200</td></tr>
+    <tr><td>Host link</td><td>USB-CDC, 25 Hz telemetry</td></tr>
+    <tr><td>Firmware</td><td>C++, Arduino-ESP32, PlatformIO</td></tr>
+    <tr><td>Host</td><td>Python control loop, three.js digital twin</td></tr>
+    <tr><td>Vision</td><td>Webcam + Gemini 3.5 Flash-Lite</td></tr>
+    <tr><td>Power</td><td>USB logic, separate 5–6 V servo rail, clean 5 V tactile</td></tr>
+  </table>
+</div>
+
+<h2>Challenge</h2>
+<p>More than 50 million US adults have arthritis, and a child-resistant pill bottle can mean waiting for help. Assistive arms cost thousands of dollars. TEND does the twist with under $200 of hobby parts. The bottom fingers hold the bottle while the top two slide in opposite directions, rolling the cap like palms rolling a pencil. Hobby servos have no position or force feedback, so grip force has to be inferred from motor current, and nothing may ever stall a servo against its stops.</p>
+<p class="result">In simulation, the full routine removes and lifts the cap in about 50 s.</p>
+
+<h2>System</h2>
+<div class="dia">
+<svg viewBox="0 0 700 230" role="img" aria-label="Block diagram. Gemini and a webcam connect to the laptop, which runs the Python control loop and digital twin. The laptop talks to an ESP32-C6 over USB at 25 Hz. The ESP32-C6 drives a PCA9685 over I²C at 400 kHz, which drives 7 servos. It reads two INA219 current sensors on a second I²C bus at 100 kHz. An Arduino Nano scans a 16 by 32 FlexiTac pad and sends frames through a BSS138 level shifter to the ESP32's UART at 115200 baud.">
+  <defs><marker id="a" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L8 4L0 8z" fill="currentColor"/></marker></defs>
+  <rect class="b" x="10" y="20" width="140" height="40"/><text x="80" y="44" text-anchor="middle">Gemini</text>
+  <rect class="b" x="10" y="96" width="140" height="54"/><text x="80" y="118" text-anchor="middle">Laptop</text><text class="s" x="80" y="136" text-anchor="middle">Python control · twin</text>
+  <rect class="b" x="10" y="186" width="140" height="32"/><text x="80" y="206" text-anchor="middle">Webcam</text>
+  <path class="l" d="M80 62V94" marker-start="url(#a)" marker-end="url(#a)"/>
+  <path class="l" d="M80 186V152" marker-end="url(#a)"/>
+  <rect class="b" x="230" y="96" width="130" height="54"/><text x="295" y="118" text-anchor="middle">ESP32-C6</text><text class="s" x="295" y="136" text-anchor="middle">servo + sensor hub</text>
+  <path class="l" d="M152 123H228" marker-start="url(#a)" marker-end="url(#a)"/><text class="s" x="190" y="116" text-anchor="middle">USB · 25 Hz</text>
+  <rect class="b" x="440" y="20" width="120" height="40"/><text x="500" y="37" text-anchor="middle">PCA9685</text><text class="s" x="500" y="52" text-anchor="middle">I²C · 400 kHz</text>
+  <rect class="b" x="440" y="103" width="120" height="40"/><text x="500" y="120" text-anchor="middle">INA219 ×2</text><text class="s" x="500" y="135" text-anchor="middle">I²C · 100 kHz</text>
+  <rect class="b" x="440" y="172" width="120" height="32"/><text x="500" y="186" text-anchor="middle">BSS138</text><text class="s" x="500" y="199" text-anchor="middle">5 V → 3.3 V</text>
+  <rect class="b" x="590" y="20" width="100" height="40"/><text x="640" y="37" text-anchor="middle">7 servos</text><text class="s" x="640" y="52" text-anchor="middle">SG90 / MG90S</text>
+  <rect class="b" x="590" y="166" width="100" height="44"/><text x="640" y="184" text-anchor="middle">Nano</text><text class="s" x="640" y="200" text-anchor="middle">FlexiTac 16×32</text>
+  <path class="l" d="M360 108H400V40H438" marker-end="url(#a)"/>
+  <path class="l" d="M438 123H362" marker-end="url(#a)"/>
+  <path class="l" d="M440 188H400V138H362" marker-end="url(#a)"/>
+  <path class="l" d="M560 40H588" marker-end="url(#a)"/>
+  <path class="l" d="M590 188H562" marker-end="url(#a)"/><text class="s" x="575" y="224" text-anchor="middle">UART 115200</text>
+</svg>
+</div>
+<p class="cap">The INA219s sit in series with the two squeeze servos' supply. The Nano is soldered to the FlexiTac reader board, and only its ICSP header is reachable, so the tactile link is a one-way SoftwareSerial TX on PB3 into a hardware UART on the ESP32.</p>
+
+<h2>Control</h2>
+<table class="k">
+  <tr><td>Firmware</td><td>Parses <code>S</code> commands, writes PCA9685 pulse widths, reads both INA219s, reassembles tactile frames, and streams one <code>D</code> line every 40 ms.</td></tr>
+  <tr><td>Skills, 25 Hz</td><td>Closed-loop motions on the laptop: grip (current-regulated), twist, release, recenter, lift. Each has a "can it run now" check, so a skill that would screw the cap back on is refused.</td></tr>
+  <tr><td>Supervisor</td><td>Gemini picks the next skill from fixed choices, with a reason, using a camera frame plus sensor readings. The tactile map goes in as a ~150-token text grid instead of an image.</td></tr>
+  <tr><td>Digital twin</td><td>three.js view of the CAD that moves with live servo angles, with current plots, tactile heatmap, and a trace of every Gemini call.</td></tr>
+</table>
+<p>Grip force comes from current. A position servo's torque grows with the gap between commanded and actual angle, so once the fingers touch, each extra degree commanded is more squeeze, and holding current rises with it. Every move starts with a 300–730 mA spike, so raw current is useless:</p>
+<ol>
+  <li><b>Contact:</b> step 3° at a time. After each step, wait for the spike to settle, read two samples, and keep the lower one. Contact is holding current minus the free-air baseline above a threshold.</li>
+  <li><b>Regulate:</b> nudge 1° at a time until the median holding current sits in a target band. Above a maximum, back off 2° at once.</li>
+  <li><b>Hold during the twist:</b> the squeeze servo is stationary while the top fingers slide, so its reading is spike-free. It's rechecked every 4 ticks and nudged ±1° to stay on target. A sharp current drop means the cap slipped.</li>
+</ol>
+<p>Approaching the last known contact angle quickly and releasing only 15° cut a twist cycle from 12.9 s to 6.5 s.</p>
+
+<h2>Protocol</h2>
+<p>ASCII lines over USB. Telemetry, 25 Hz, 12 fields:</p>
+<div class="eq">D &lt;ok&gt; &lt;a0&gt;…&lt;a6&gt; &lt;i0_mA&gt; &lt;i1_mA&gt; &lt;tactile: 1024 hex chars&gt;</div>
+<table class="k">
+  <tr><td><code>S &lt;idx&gt; &lt;deg&gt; …</code></td><td>Set any number of servos in one line. If any pair is invalid, nothing is applied and the reply is <code>ERR</code>.</td></tr>
+  <tr><td><code>C &lt;idx&gt; &lt;min&gt; &lt;max&gt;</code></td><td>Per-servo pulse limits in µs, saved to flash.</td></tr>
+  <tr><td><code>R &lt;idx&gt; &lt;0|1&gt;</code></td><td>Reverse flag for mirrored servos, saved to flash. Changing it makes the servo go limp, so it can't jump.</td></tr>
+</table>
+<p>Tactile frames from the Nano: <code>A5 5A</code> + 512 bytes + 16-bit checksum, 516 bytes at ~18 frames/s, parsed byte by byte on the ESP32. <code>ok</code> drops to 0 if no valid frame arrived in 200 ms.</p>
+
+<h2>Safety</h2>
+<table class="k">
+  <tr><td>Limp at boot</td><td>Every channel stays off (angle −1) until the host sends <code>S</code>. A fixed boot pose once drove a servo with no end stops into a stall.</td></tr>
+  <tr><td>Soft limits</td><td>A calibration tool marks each servo's end of travel. Both ends sit 30 µs (~0.4 mm) inside the physical stops, so no angle from 0 to 180 can reach a stop.</td></tr>
+  <tr><td>Stall guard</td><td>Squeeze servos back off above the current limit, and calibration goes limp above 600 mA.</td></tr>
+  <tr><td>AI boundary</td><td>Gemini never sends servo angles. A call takes 1–3 s, but contact has to be caught within ~100 ms, so force control stays local at 25 Hz.</td></tr>
+  <tr><td>Port open</td><td>The host opens the ESP32-C6's USB port with DTR/RTS off. A default open resets the chip and drops whatever the gripper holds.</td></tr>
+</table>
+
+</main>
+<script>
+document.getElementById('load3d').onclick=function(){
+  self.ModelViewerElement={meshoptDecoderLocation:'https://cdn.jsdelivr.net/npm/meshoptimizer@0.22.0/meshopt_decoder.js'};
+  var s=document.createElement('script');s.type='module';
+  s.src='https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js';
+  document.head.appendChild(s);
+  var m=document.createElement('model-viewer');
+  [['src','model.glb'],['poster','poster.webp'],['alt','Interactive 3D model of the TEND gripper'],['camera-controls',''],['camera-orbit','70deg 55deg 105%'],['field-of-view','24deg'],['environment-image','legacy'],['shadow-intensity','0.6'],['animation-name','dof-demo'],['autoplay',''],['interaction-prompt','none'],['touch-action','pan-y']].forEach(function(a){m.setAttribute(a[0],a[1])});
+  document.getElementById('cad').replaceChildren(m);
+};
+</script>
+</body>
+</html>

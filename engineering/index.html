@@ -16,15 +16,18 @@ header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap
 h1{font-size:20px;margin:0}
 nav{font-size:13px}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
-th:nth-child(1){width:112px}th:nth-child(3){width:80px}th:nth-child(4){width:130px}th:nth-child(5){width:200px}
-@media (max-width:560px){th:nth-child(1){width:88px}th:nth-child(4){width:120px}}
-td,th{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:first-child>:nth-child(1){width:132px}tr:first-child>:nth-child(3){width:80px}tr:first-child>:nth-child(4){width:140px}tr:first-child>:nth-child(5){width:215px}
+@media (max-width:560px){tr:first-child>:nth-child(1){width:100px}tr:first-child>:nth-child(4){width:112px}}
+td,th{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+td{font-size:15.5px}
+td small{font-size:13.5px}
 th{font-size:12px;font-weight:600;color:var(--mute);background:var(--alt)}
 tbody tr:hover{background:var(--alt)}
-td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;border:1px solid var(--line)}
+caption{text-align:left;padding:20px 8px 4px;font-size:12px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--fg)}
+td img{display:block;width:116px;height:72px;object-fit:contain;background:#fff;border:1px solid var(--line)}
 .n{white-space:nowrap}
 .r{font-variant-numeric:tabular-nums}
-@media (max-width:560px){.hide-s{display:none}td img{width:72px;height:45px}}
+@media (max-width:560px){.hide-s{display:none}td img{width:84px;height:52px}}
 </style>
 <script type="speculationrules">{"prerender":[{"where":{"href_matches":"/engineering/*"},"eagerness":"moderate"}]}</script>
 </head>
@@ -35,8 +38,11 @@ td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;b
   <nav><a href="/">Research</a> · <a href="/data/nathan_zhao_resume.pdf">Resume</a> · <a href="https://github.com/nathanwuzhao/">GitHub</a> · <a href="mailto:nathanwuzhao@gmail.com">Email</a></nav>
 </header>
 
-<table style="margin-top:16px">
+<table style="margin-top:8px">
 <thead><tr><th></th><th>Project</th><th class="hide-s">Year</th><th>Result</th><th class="hide-s">Disciplines</th></tr></thead>
+</table>
+<table>
+<caption>Personal</caption>
 <tbody>
 <tr>
   <td><a href="robot-tour/"><img src="robot-tour/thumb.webp" width="96" height="60" alt="Robot Tour CAD render"></a></td>
@@ -44,13 +50,6 @@ td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;b
   <td class="n hide-s">2026</td>
   <td class="r">State champion</td>
   <td class="hide-s"><small>Firmware · Controls · CAD</small></td>
-</tr>
-<tr>
-  <td><a href="vigil/"><img src="vigil/thumb.webp" width="96" height="60" alt="VIGIL glasses and drone network diagram"></a></td>
-  <td><a href="vigil/">VIGIL</a><br><small>Assistive glasses with haptic guidance and a scout drone</small></td>
-  <td class="n hide-s">2026</td>
-  <td class="r">HackGT 3rd</td>
-  <td class="hide-s"><small>Electronics · Firmware · Networking</small></td>
 </tr>
 <tr>
   <td><a href="bimanual-manipulator/"><img src="bimanual-manipulator/thumb.webp" width="96" height="60" alt="Bimanual manipulator CAD render"></a></td>
@@ -63,8 +62,34 @@ td img{display:block;width:96px;height:60px;object-fit:contain;background:#fff;b
   <td><a href="liquid-handler/"><img src="liquid-handler/thumb.webp" width="96" height="60" alt="Gantry liquid handler CAD render"></a></td>
   <td><a href="liquid-handler/">Gantry Liquid Handler</a><br><small>Broken 3D printer rebuilt on linear rails with a belt-driven Z</small></td>
   <td class="n hide-s">2026</td>
-  <td class="r">±0.1 mm, 0.5 mL</td>
+  <td class="r">Just for fun :)</td>
   <td class="hide-s"><small>Mechanical · CAD · Firmware</small></td>
+</tr>
+<tr>
+  <td><a href="lescara/"><img src="lescara/thumb.webp" width="96" height="60" alt="LeSCARA arm prototype"></a></td>
+  <td><a href="lescara/">LeSCARA</a><br><small>Open-source 3D-printed SCARA arm for embodied AI research</small></td>
+  <td class="n hide-s">2026</td>
+  <td class="r">In progress</td>
+  <td class="hide-s"><small>CAD · Electronics · Firmware</small></td>
+</tr>
+</tbody>
+</table>
+<table>
+<caption>Hackathons</caption>
+<tbody>
+<tr>
+  <td><a href="tend/"><img src="tend/thumb.webp" width="96" height="60" alt="TEND gripper CAD render"></a></td>
+  <td><a href="tend/">TEND</a><br><small>7-servo gripper that unscrews pill bottles, current-regulated grip</small></td>
+  <td class="n hide-s">2026</td>
+  <td class="r">MakeCU 2026</td>
+  <td class="hide-s"><small>Electronics · Firmware · Controls</small></td>
+</tr>
+<tr>
+  <td><a href="vigil/"><img src="vigil/thumb.webp" width="96" height="60" alt="VIGIL glasses and drone network diagram"></a></td>
+  <td><a href="vigil/">VIGIL</a><br><small>Assistive glasses with haptic guidance and a scout drone</small></td>
+  <td class="n hide-s">2026</td>
+  <td class="r">HackGT 3rd</td>
+  <td class="hide-s"><small>Electronics · Firmware · Networking</small></td>
 </tr>
 </tbody>
 </table>
